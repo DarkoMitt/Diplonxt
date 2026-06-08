@@ -32,17 +32,30 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'ends_with:@next.edu.mk', 'unique:'.User::class],
+            'email' => [
+                'required',
+                'string',
+                'lowercase',
+                'email',
+                'max:255',
+                'ends_with:@next.edu.mk',
+                'unique:' . User::class,
+            ],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'role' => ['required', 'in:student,professor'],
         ], [
             'email.ends_with' => 'You must register with your Brainster Next College email address.',
+            'role.required' => 'Please select whether you are registering as a student or professor.',
         ]);
+
+        $role = $request->input('role');
 
         $user = User::create([
             'name' => $request->name,
-            'email' => $request->email,
+            'email' => strtolower($request->email),
             'password' => Hash::make($request->password),
-            'role' => 'student',
+            'role' => $role,
+            'status' => $role === 'professor' ? 'pending' : 'approved',
         ]);
 
         event(new Registered($user));

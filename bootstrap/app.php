@@ -17,7 +17,6 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $middleware->alias([
-            'role' => EnsureUserHasRole::class,
-        ]);
-    })->create();
+        //
+    })
+    ->create();
