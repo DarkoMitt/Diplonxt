@@ -1,36 +1,20 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
-
-        <title>{{ config('app.name', 'Laravel') }}</title>
-
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
-            @include('layouts.navigation')
-
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
-
-            <!-- Page Content -->
-            <main>
-                {{ $slot }}
-            </main>
-        </div>
-    </body>
-</html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="csrf-token" content="{{ csrf_token() }}"><title>{{ $title ?? 'DiploNxt' }} · Brainster Next College</title>@vite(['resources/css/app.css','resources/js/app.js'])</head>
+<body class="bg-slate-50 text-slate-900 antialiased" x-data="{ sidebar: false }">
+<div class="min-h-screen lg:flex">
+    <div x-show="sidebar" x-transition.opacity class="fixed inset-0 z-40 bg-slate-950/50 lg:hidden" @click="sidebar=false"></div>
+    <aside :class="sidebar ? 'translate-x-0' : '-translate-x-full'" class="fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-slate-950 text-white transition lg:static lg:translate-x-0">
+        <a href="{{ route('dashboard') }}" class="flex h-20 items-center gap-3 border-b border-white/10 px-7"><span class="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-blue-500 to-violet-500 font-black">D</span><span><b class="text-xl">DiploNxt</b><small class="block text-slate-400">Thesis workspace</small></span></a>
+        <nav class="flex-1 space-y-2 p-4 text-sm font-semibold">
+            <a class="nav-link {{ request()->routeIs('dashboard') ? 'nav-active' : '' }}" href="{{ route('dashboard') }}">⌂ <span>Dashboard</span></a>
+            @if(auth()->user()->isStudent() && auth()->user()->thesis)<a class="nav-link {{ request()->routeIs('theses.*') ? 'nav-active' : '' }}" href="{{ route('theses.show', auth()->user()->thesis) }}">◇ <span>My thesis</span></a><a class="nav-link {{ request()->routeIs('chat.*') ? 'nav-active' : '' }}" href="{{ route('chat.show', auth()->user()->thesis) }}">◌ <span>Mentor chat</span></a>@endif
+            @if(auth()->user()->isAdministrator())<p class="px-3 pb-1 pt-5 text-xs uppercase tracking-widest text-slate-500">Administration</p><a class="nav-link {{ request()->routeIs('admin.users.*') ? 'nav-active' : '' }}" href="{{ route('admin.users.index') }}">♙ <span>Users</span></a><a class="nav-link {{ request()->routeIs('admin.theses.*') ? 'nav-active' : '' }}" href="{{ route('admin.theses.index') }}">▤ <span>All theses</span></a><a class="nav-link {{ request()->routeIs('admin.defenses.*') ? 'nav-active' : '' }}" href="{{ route('admin.defenses.index') }}">◫ <span>Defenses</span></a>@endif
+        </nav>
+        <div class="border-t border-white/10 p-4"><div class="flex items-center gap-3 rounded-xl bg-white/5 p-3"><span class="grid size-10 place-items-center rounded-full bg-violet-500 font-bold">{{ str(auth()->user()->name)->substr(0,1) }}</span><span class="min-w-0 flex-1"><b class="block truncate text-sm">{{ auth()->user()->name }}</b><small class="text-slate-400">{{ auth()->user()->role->label() }}</small></span><form method="POST" action="{{ route('logout') }}">@csrf<button title="Log out">↗</button></form></div></div>
+    </aside>
+    <main class="min-w-0 flex-1"><header class="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-slate-200 bg-white/90 px-4 backdrop-blur sm:px-8"><button class="text-2xl lg:hidden" @click="sidebar=true">☰</button><div><p class="text-xs font-bold uppercase tracking-widest text-blue-600">Brainster Next College</p><p class="font-semibold text-slate-600">Thesis Management Portal</p></div><div class="flex items-center gap-3"><a href="{{ route('profile.edit') }}" class="btn-secondary hidden sm:inline-flex">Profile</a><span class="relative grid size-10 place-items-center rounded-xl bg-slate-100">♢ @if(auth()->user()->unreadNotifications()->count())<i class="absolute right-1 top-1 size-2 rounded-full bg-rose-500"></i>@endif</span></div></header>
+        <div class="p-4 sm:p-8">@if(session('success'))<div class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4 font-medium text-emerald-800">{{ session('success') }}</div>@endif @if($errors->any())<div class="mb-6 rounded-xl border border-rose-200 bg-rose-50 p-4 text-rose-800"><ul class="list-inside list-disc">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif {{ $slot }}</div>
+    </main>
+</div>
+</body></html>
